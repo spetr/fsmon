@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         go: [1.19]
-        goos: [ubuntu-latest, windows-latest, darwin-latest]
+        goos: [ubuntu, windows, darwin]
         goarch: [amd64, arm64]
         exclude:
           - goarch: arm64
