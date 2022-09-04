@@ -7,20 +7,20 @@ is read from enviroment variables.
 
 ```bash
 mkdir /opt/fsmon
-tar -C /opt/iwmon -xzf iwmon_v0.2.7_linux_amd64.tgz
+tar -C /opt/fsmon -xzf fsmon_v0.2.7_linux_amd64.tgz
 cd /opt/fsmon
-./iwmon -service install
-./iwmon -service start
+./fsmon -service install
+./fsmon -service start
 ```
 
 ## Install on Windows
 
-Unzip to C:\iwmon and run cmd.exe aith administrator account.
+Unzip to C:\fsmon and run cmd.exe aith administrator account.
 
 ```cmd
-cd c:\iwmon
-iwmon.exe -service install
-iwmon.exe -service start
+cd c:\fsmon
+fsmon.exe -service install
+fsmon.exe -service start
 ```
 
 ## Enviroment variables

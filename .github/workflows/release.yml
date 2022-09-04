@@ -1,0 +1,28 @@
+on:
+  release:
+    types: [created]
+
+jobs:
+  releases-matrix:
+    name: Release binary
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: [1.19]
+        os: [ubuntu-latest, windows-latest, darwin-latest]
+        arch: [amd64, arm64]
+        exclude:
+          - goarch: "386"
+            goos: darwin
+          - goarch: arm64
+            goos: windows
+    steps:
+    - uses: actions/checkout@v3
+    - uses: wangyoucao577/go-release-action@v1.30
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        goos: ${{ matrix.goos }}
+        goarch: ${{ matrix.goarch }}
+        extra_files: |
+          README.md
+          LICENSE

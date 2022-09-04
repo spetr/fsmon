@@ -16,9 +16,9 @@ func main() {
 	options["Restart"] = "always"
 
 	svcConfig := &service.Config{
-		Name:        "iwmon",
-		DisplayName: "IceWarp monitoring",
-		Description: "IceWarp server external monitoring tool.",
+		Name:        "fsmon",
+		DisplayName: "Filesystem monitoring",
+		Description: "Filesystem monitoring tool.",
 	}
 
 	prg := &program{}
