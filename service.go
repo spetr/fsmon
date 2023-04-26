@@ -41,11 +41,12 @@ func (p *program) run() {
 		zabbixSender.ConnectTimeout = conf.Zabbix.Servers[i].ConnectTimeout
 		zabbixSender.ReadTimeout = conf.Zabbix.Servers[i].ReadTimeout
 		zabbixSender.WriteTimeout = conf.Zabbix.Servers[i].WriteTimeout
-		if zabbixResponse, err, _, _ := zabbixSender.SendMetrics(metrics); err != nil {
-			if *debugFlag {
-				logger.Infof("Zabbix response info: %s", zabbixResponse.Info)
-				logger.Infof("Zabbix response: %s", zabbixResponse.Response)
-			}
+		zabbixResponse, err, _, _ := zabbixSender.SendMetrics(metrics)
+		if *debugFlag {
+			logger.Infof("Zabbix response info: %s", zabbixResponse.Info)
+			logger.Infof("Zabbix response: %s", zabbixResponse.Response)
+		}
+		if err != nil {
 			logger.Errorf("Failed to send metrics to %s: %s", conf.Zabbix.Servers[i].Host, err)
 		}
 	}
