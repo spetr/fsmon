@@ -13,7 +13,7 @@ var (
 
 func main() {
 	svcFlag := flag.String("service", "", "Control the system service.")
-	configFile = flag.String("config", "/etc/fsmon.yaml", "Config file path.")
+	configFile = flag.String("config", "/etc/fsmon.yml", "Config file path.")
 	flag.Parse()
 
 	options := make(service.KeyValue)

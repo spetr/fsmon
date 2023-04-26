@@ -2,8 +2,10 @@ package main
 
 import (
 	"os"
+	"time"
 
 	"github.com/kardianos/service"
+	"github.com/spetr/go-zabbix-sender"
 )
 
 var logger service.Logger
@@ -29,20 +31,20 @@ func (p *program) run() {
 		os.Exit(1)
 	}
 
-	/*
-		// Register zabbix host
-		for i := range conf.Zabbix.Servers {
-			logger.Infof("Registering host %s on %s", conf.Zabbix.Hostname, conf.Zabbix.Servers[i].Host)
-			zabbixSender := zabbix.NewSender(conf.Zabbix.Servers[i].Host)
-			zabbixSender.ConnectTimeout = conf.Zabbix.Servers[i].ConnectTimeout
-			zabbixSender.ReadTimeout = conf.Zabbix.Servers[i].ReadTimeout
-			zabbixSender.WriteTimeout = conf.Zabbix.Servers[i].WriteTimeout
-			err := zabbixSender.RegisterHost(conf.Zabbix.Hostname, "")
-			if err != nil {
-				logger.Errorf("Failed to register host %s on %s: %s", conf.Zabbix.Hostname, conf.Zabbix.Servers[i].Host, err)
-			}
+	// Run zabbix discovery
+	metrics := make([]*zabbix.Metric, 1)
+	t := time.Now().Unix()
+	metrics[0] = zabbix.NewMetric(conf.Zabbix.Hostname, "fsmon.discovery", "[{\"{#NAME}\": \"name\"}]", true, t)
+	for i := range conf.Zabbix.Servers {
+		logger.Infof("Starting service discovery for host %s on %s", conf.Zabbix.Hostname, conf.Zabbix.Servers[i].Host)
+		zabbixSender := zabbix.NewSender(conf.Zabbix.Servers[i].Host)
+		zabbixSender.ConnectTimeout = conf.Zabbix.Servers[i].ConnectTimeout
+		zabbixSender.ReadTimeout = conf.Zabbix.Servers[i].ReadTimeout
+		zabbixSender.WriteTimeout = conf.Zabbix.Servers[i].WriteTimeout
+		if _, _, _, err := zabbixSender.SendMetrics(metrics); err != nil {
+			logger.Errorf("Failed to send metrics to %s: %s", conf.Zabbix.Servers[i].Host, err)
 		}
-	*/
+	}
 
 	// Start Zabbix sender
 	for i := range conf.Filesystems {
