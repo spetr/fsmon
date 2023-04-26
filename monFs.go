@@ -218,22 +218,20 @@ func monFsUpdate(mountpoint, name string) {
 
 		// Zabbix Sender
 		if len(conf.Zabbix.Servers) > 0 {
-			var (
-				metrics []*zabbix.Metric
-				t       = time.Now().Unix()
-			)
-			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.mkdir.%s", name), fmt.Sprintf("%d", timeMonFsMkdir), true, t))
-			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.list.%s", name), fmt.Sprintf("%d", timeMonFsList), true, t))
-			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.create.%s", name), fmt.Sprintf("%d", timeMonFsCreate), true, t))
-			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.open.%s", name), fmt.Sprintf("%d", timeMonFsOpen), true, t))
-			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.write.%s", name), fmt.Sprintf("%d", timeMonFsWrite), true, t))
-			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.sync.%s", name), fmt.Sprintf("%d", timeMonFsSync), true, t))
-			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.read.%s", name), fmt.Sprintf("%d", timeMonFsRead), true, t))
-			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.close.%s", name), fmt.Sprintf("%d", timeMonFsClose), true, t))
-			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.stat.%s", name), fmt.Sprintf("%d", timeMonFsStat), true, t))
-			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.statnx.%s", name), fmt.Sprintf("%d", timeMonFsStatNx), true, t))
-			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.delete.%s", name), fmt.Sprintf("%d", timeMonFsDelete), true, t))
-			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.rmdir.%s", name), fmt.Sprintf("%d", timeMonFsRmdir), true, t))
+			metrics := make([]*zabbix.Metric, 12)
+			t := time.Now().Unix()
+			metrics[0] = zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.mkdir.%s", name), fmt.Sprintf("%d", timeMonFsMkdir), true, t)
+			metrics[1] = zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.list.%s", name), fmt.Sprintf("%d", timeMonFsList), true, t)
+			metrics[2] = zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.create.%s", name), fmt.Sprintf("%d", timeMonFsCreate), true, t)
+			metrics[3] = zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.open.%s", name), fmt.Sprintf("%d", timeMonFsOpen), true, t)
+			metrics[4] = zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.write.%s", name), fmt.Sprintf("%d", timeMonFsWrite), true, t)
+			metrics[5] = zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.sync.%s", name), fmt.Sprintf("%d", timeMonFsSync), true, t)
+			metrics[6] = zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.read.%s", name), fmt.Sprintf("%d", timeMonFsRead), true, t)
+			metrics[7] = zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.close.%s", name), fmt.Sprintf("%d", timeMonFsClose), true, t)
+			metrics[8] = zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.stat.%s", name), fmt.Sprintf("%d", timeMonFsStat), true, t)
+			metrics[9] = zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.statnx.%s", name), fmt.Sprintf("%d", timeMonFsStatNx), true, t)
+			metrics[10] = zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.delete.%s", name), fmt.Sprintf("%d", timeMonFsDelete), true, t)
+			metrics[11] = zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.rmdir.%s", name), fmt.Sprintf("%d", timeMonFsRmdir), true, t)
 			for i := range conf.Zabbix.Servers {
 				logger.Infof("Sending metrics to Zabbix server %s", conf.Zabbix.Servers[i].Host)
 				zabbixSender := zabbix.NewSender(conf.Zabbix.Servers[i].Host)
