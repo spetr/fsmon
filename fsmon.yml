@@ -1,0 +1,16 @@
+filesystems:
+#  - mountpoint: /
+#    name: root
+#  - mountpoint: /home
+#    name: home
+#  - mountpoint: /home/example
+#    name: example
+  - mountpoint: /Users/glux/
+    name: example2
+
+zabbix:
+  hostname: fsmon.example.com # Hostname of the Zabbix agent, if not set, the hostname of the machine will be used
+  servers:
+    - host: zabbix.example.com:10051 # Zabbix server address
+      fallbackdir: /tmp/zabbix2
+      timeout: 15s

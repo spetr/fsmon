@@ -1,11 +1,7 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/kardianos/service"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var logger service.Logger
@@ -28,24 +24,9 @@ func (p *program) Start(s service.Service) error {
 func (p *program) run() {
 	configLoad()
 
-	r := prometheus.NewRegistry()
-
-	if conf.Prometheus != "" {
-		http.Handle("/metrics", promhttp.HandlerFor(
-			r,
-			promhttp.HandlerOpts{
-				EnableOpenMetrics: true,
-			},
-		))
-		go func() {
-			if err := http.ListenAndServe(conf.Prometheus, nil); err != nil {
-				logger.Error(err.Error())
-			}
-		}()
-
+	for _, fs := range conf.Filesystems {
+		go monFsUpdate(fs.Mountpoint, fs.Name)
 	}
-
-	go monFsUpdate(r)
 
 	<-p.exit
 }

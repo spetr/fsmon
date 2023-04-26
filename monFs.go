@@ -6,87 +6,10 @@ import (
 	"path"
 	"time"
 
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spetr/go-zabbix-sender"
 )
 
-var (
-	monFsMkdir = prometheus.NewGauge(
-		prometheus.GaugeOpts{
-			Name: "fs_mail_mkdir",
-			Help: "Filesystem mail storage - mkdir (microseconds)",
-		},
-	)
-	monFsList = prometheus.NewGauge(
-		prometheus.GaugeOpts{
-			Name: "fs_mail_list",
-			Help: "Filesystem mail storage - list (microseconds)",
-		},
-	)
-	monFsCreate = prometheus.NewGauge(
-		prometheus.GaugeOpts{
-			Name: "fs_mail_create",
-			Help: "Filesystem mail storage - create (microseconds)",
-		},
-	)
-	monFsOpen = prometheus.NewGauge(
-		prometheus.GaugeOpts{
-			Name: "fs_mail_open",
-			Help: "Filesystem mail storage - open (microseconds)",
-		},
-	)
-	monFsWrite = prometheus.NewGauge(
-		prometheus.GaugeOpts{
-			Name: "fs_mail_write",
-			Help: "Filesystem mail storage - write (microseconds)",
-		},
-	)
-	monFsSync = prometheus.NewGauge(
-		prometheus.GaugeOpts{
-			Name: "fs_mail_sync",
-			Help: "Filesystem mail storage - sync (microseconds)",
-		},
-	)
-	monFsRead = prometheus.NewGauge(
-		prometheus.GaugeOpts{
-			Name: "fs_mail_read",
-			Help: "Filesystem mail storage - read (microseconds)",
-		},
-	)
-	monFsClose = prometheus.NewGauge(
-		prometheus.GaugeOpts{
-			Name: "fs_mail_close",
-			Help: "Filesystem mail storage - close (microseconds)",
-		},
-	)
-	monFsStat = prometheus.NewGauge(
-		prometheus.GaugeOpts{
-			Name: "fs_mail_stat",
-			Help: "Filesystem mail storage - stat (microseconds)",
-		},
-	)
-	monFsStatNx = prometheus.NewGauge(
-		prometheus.GaugeOpts{
-			Name: "fs_mail_statnx",
-			Help: "Filesystem mail storage - statnx (microseconds)",
-		},
-	)
-	monFsDelete = prometheus.NewGauge(
-		prometheus.GaugeOpts{
-			Name: "fs_mail_delete",
-			Help: "Filesystem mail storage - delete (microseconds)",
-		},
-	)
-	monFsRmdir = prometheus.NewGauge(
-		prometheus.GaugeOpts{
-			Name: "fs_mail_rmdir",
-			Help: "Filesystem mail storage - rmdir (microseconds)",
-		},
-	)
-)
-
-func monFsUpdate(r *prometheus.Registry) {
-
+func monFsUpdate(mountpoint, name string) {
 	var (
 		start           time.Time
 		err             error
@@ -107,21 +30,6 @@ func monFsUpdate(r *prometheus.Registry) {
 		timeMonFsRmdir  float64
 	)
 
-	if conf.Prometheus != "" {
-		r.MustRegister(monFsMkdir)
-		r.MustRegister(monFsList)
-		r.MustRegister(monFsCreate)
-		r.MustRegister(monFsOpen)
-		r.MustRegister(monFsWrite)
-		r.MustRegister(monFsSync)
-		r.MustRegister(monFsRead)
-		r.MustRegister(monFsClose)
-		r.MustRegister(monFsStat)
-		r.MustRegister(monFsStatNx)
-		r.MustRegister(monFsDelete)
-		r.MustRegister(monFsRmdir)
-	}
-
 	for {
 		func() {
 			// Default values (no test / error in test)
@@ -138,16 +46,16 @@ func monFsUpdate(r *prometheus.Registry) {
 			timeMonFsDelete = -1
 			timeMonFsRmdir = -1
 
-			if _, err = os.Stat(conf.Filesystem); err != nil {
-				logger.Errorf("Mail path error: %s", err.Error())
+			if _, err = os.Stat(mountpoint); err != nil {
+				logger.Errorf("Mountpoint %s path error: %s", name, err.Error())
 				time.Sleep(10 * time.Second)
 				return
 			}
 
-			testPath = path.Join(conf.Filesystem, ".fsmon")
+			testPath = path.Join(mountpoint, ".fsmon")
 			// Create .fsmon folder and prepare data
 			if err = os.MkdirAll(testPath, os.ModePerm); err != nil {
-				logger.Errorf("Can not create mail fs testing directort: %s", err.Error())
+				logger.Errorf("Can not create %s fs testing directory: %s", name, err.Error())
 				time.Sleep(10 * time.Second)
 				return
 			}
@@ -252,43 +160,26 @@ func monFsUpdate(r *prometheus.Registry) {
 
 		}()
 
-		// Prometheus Exporter
-		if conf.Prometheus != "" {
-			monFsMkdir.Set(timeMonFsMkdir)
-			monFsList.Set(timeMonFsList)
-			monFsCreate.Set(timeMonFsCreate)
-			monFsOpen.Set(timeMonFsOpen)
-			monFsWrite.Set(timeMonFsWrite)
-			monFsSync.Set(timeMonFsSync)
-			monFsRead.Set(timeMonFsRead)
-			monFsClose.Set(timeMonFsClose)
-			monFsStat.Set(timeMonFsStat)
-			monFsStatNx.Set(timeMonFsStatNx)
-			monFsDelete.Set(timeMonFsDelete)
-			monFsRmdir.Set(timeMonFsRmdir)
-		}
-
 		// Zabbix Sender
-		if len(conf.ZabbixServer) > 0 {
+		if len(conf.Zabbix.Servers) > 0 {
 			var (
-				metrics     []*zabbix.Metric
-				t           = time.Now().Unix()
-				hostname, _ = os.Hostname()
+				metrics []*zabbix.Metric
+				t       = time.Now().Unix()
 			)
-			metrics = append(metrics, zabbix.NewMetric(hostname, "fs.mail_mkdir", fmt.Sprintf("%f", timeMonFsMkdir), true, t))
-			metrics = append(metrics, zabbix.NewMetric(hostname, "fs.mail_list", fmt.Sprintf("%f", timeMonFsList), true, t))
-			metrics = append(metrics, zabbix.NewMetric(hostname, "fs.mail_create", fmt.Sprintf("%f", timeMonFsCreate), true, t))
-			metrics = append(metrics, zabbix.NewMetric(hostname, "fs.mail_open", fmt.Sprintf("%f", timeMonFsOpen), true, t))
-			metrics = append(metrics, zabbix.NewMetric(hostname, "fs.mail_write", fmt.Sprintf("%f", timeMonFsWrite), true, t))
-			metrics = append(metrics, zabbix.NewMetric(hostname, "fs.mail_sync", fmt.Sprintf("%f", timeMonFsSync), true, t))
-			metrics = append(metrics, zabbix.NewMetric(hostname, "fs.mail_read", fmt.Sprintf("%f", timeMonFsRead), true, t))
-			metrics = append(metrics, zabbix.NewMetric(hostname, "fs.mail_close", fmt.Sprintf("%f", timeMonFsClose), true, t))
-			metrics = append(metrics, zabbix.NewMetric(hostname, "fs.mail_stat", fmt.Sprintf("%f", timeMonFsStat), true, t))
-			metrics = append(metrics, zabbix.NewMetric(hostname, "fs.mail_statnx", fmt.Sprintf("%f", timeMonFsStatNx), true, t))
-			metrics = append(metrics, zabbix.NewMetric(hostname, "fs.mail_delete", fmt.Sprintf("%f", timeMonFsDelete), true, t))
-			metrics = append(metrics, zabbix.NewMetric(hostname, "fs.mail_rmdir", fmt.Sprintf("%f", timeMonFsRmdir), true, t))
-			for i := range conf.ZabbixServer {
-				zabbix.NewSender(conf.ZabbixServer[i]).SendMetrics(metrics)
+			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.%s.mkdir", name), fmt.Sprintf("%f", timeMonFsMkdir), true, t))
+			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.%s.list", name), fmt.Sprintf("%f", timeMonFsList), true, t))
+			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.%s.create", name), fmt.Sprintf("%f", timeMonFsCreate), true, t))
+			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.%s.open", name), fmt.Sprintf("%f", timeMonFsOpen), true, t))
+			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.%s.write", name), fmt.Sprintf("%f", timeMonFsWrite), true, t))
+			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.%s.sync", name), fmt.Sprintf("%f", timeMonFsSync), true, t))
+			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.%s.read", name), fmt.Sprintf("%f", timeMonFsRead), true, t))
+			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.%s.close", name), fmt.Sprintf("%f", timeMonFsClose), true, t))
+			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.%s.stat", name), fmt.Sprintf("%f", timeMonFsStat), true, t))
+			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.%s.statnx", name), fmt.Sprintf("%f", timeMonFsStatNx), true, t))
+			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.%s.delete", name), fmt.Sprintf("%f", timeMonFsDelete), true, t))
+			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.%s.rmdir", name), fmt.Sprintf("%f", timeMonFsRmdir), true, t))
+			for i := range conf.Zabbix.Servers {
+				zabbix.NewSender(conf.Zabbix.Servers[i].Host).SendMetrics(metrics)
 			}
 		}
 
