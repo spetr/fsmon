@@ -179,11 +179,14 @@ func monFsUpdate(mountpoint, name string) {
 			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.delete.%s", name), fmt.Sprintf("%f", timeMonFsDelete), true, t))
 			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.rmdir.%s", name), fmt.Sprintf("%f", timeMonFsRmdir), true, t))
 			for i := range conf.Zabbix.Servers {
+				logger.Infof("Sending metrics to Zabbix server %s", conf.Zabbix.Servers[i].Host)
 				zabbixSender := zabbix.NewSender(conf.Zabbix.Servers[i].Host)
 				zabbixSender.ConnectTimeout = conf.Zabbix.Servers[i].ConnectTimeout
 				zabbixSender.ReadTimeout = conf.Zabbix.Servers[i].ReadTimeout
 				zabbixSender.WriteTimeout = conf.Zabbix.Servers[i].WriteTimeout
-				zabbixSender.SendMetrics(metrics)
+				if _, _, _, err := zabbixSender.SendMetrics(metrics); err != nil {
+					logger.Errorf("Failed to send metrics to Zabbix server %s: %s", conf.Zabbix.Servers[i].Host, err)
+				}
 			}
 		}
 
