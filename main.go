@@ -9,12 +9,17 @@ import (
 
 var (
 	configFile *string
+	debugFlag  *bool
 )
 
 func main() {
 	svcFlag := flag.String("service", "", "Control the system service.")
 	configFile = flag.String("config", "/etc/fsmon.yml", "Config file path.")
+	debugFlag = flag.Bool("debug", false, "Debug mode.")
 	flag.Parse()
+	if debugFlag == nil {
+		*debugFlag = false
+	}
 
 	options := make(service.KeyValue)
 	options["Restart"] = "always"

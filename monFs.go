@@ -75,6 +75,9 @@ func monFsUpdate(mountpoint, name string) {
 				return
 			}
 			timeMonFsMkdir = float64(time.Since(start).Microseconds())
+			if *debugFlag {
+				logger.Infof("Measured time mkdir on %s: %f", name, timeMonFsMkdir)
+			}
 
 			// list
 			start = time.Now()
@@ -82,6 +85,9 @@ func monFsUpdate(mountpoint, name string) {
 				return
 			}
 			timeMonFsList = float64(time.Since(start).Microseconds())
+			if *debugFlag {
+				logger.Infof("Measured time list on %s: %f", name, timeMonFsList)
+			}
 
 			// create file
 			start = time.Now()
@@ -90,6 +96,9 @@ func monFsUpdate(mountpoint, name string) {
 			}
 			timeMonFsCreate = float64(time.Since(start).Microseconds())
 			fh.Close()
+			if *debugFlag {
+				logger.Infof("Measured time create on %s: %f", name, timeMonFsCreate)
+			}
 
 			// open file
 			start = time.Now()
@@ -97,6 +106,9 @@ func monFsUpdate(mountpoint, name string) {
 				return
 			}
 			timeMonFsOpen = float64(time.Since(start).Microseconds())
+			if *debugFlag {
+				logger.Infof("Measured time open on %s: %f", name, timeMonFsOpen)
+			}
 
 			// flock - TODO
 
@@ -107,6 +119,9 @@ func monFsUpdate(mountpoint, name string) {
 				return
 			}
 			timeMonFsWrite = float64(time.Since(start).Microseconds())
+			if *debugFlag {
+				logger.Infof("Measured time write on %s: %f", name, timeMonFsWrite)
+			}
 
 			// sync
 			fh.SetWriteDeadline(time.Now().Add(2 * time.Second))
@@ -115,6 +130,9 @@ func monFsUpdate(mountpoint, name string) {
 				return
 			}
 			timeMonFsSync = float64(time.Since(start).Microseconds())
+			if *debugFlag {
+				logger.Infof("Measured time sync on %s: %f", name, timeMonFsSync)
+			}
 
 			// read
 			fh.SetReadDeadline(time.Now().Add(2 * time.Second))
@@ -123,6 +141,9 @@ func monFsUpdate(mountpoint, name string) {
 				return
 			}
 			timeMonFsRead = float64(time.Since(start).Microseconds())
+			if *debugFlag {
+				logger.Infof("Measured time read on %s: %f", name, timeMonFsRead)
+			}
 
 			// close
 			fh.SetWriteDeadline(time.Now().Add(2 * time.Second))
@@ -131,6 +152,9 @@ func monFsUpdate(mountpoint, name string) {
 				return
 			}
 			timeMonFsClose = float64(time.Since(start).Microseconds())
+			if *debugFlag {
+				logger.Infof("Measured time close on %s: %f", name, timeMonFsClose)
+			}
 
 			// stat
 			start = time.Now()
@@ -138,11 +162,17 @@ func monFsUpdate(mountpoint, name string) {
 				return
 			}
 			timeMonFsStat = float64(time.Since(start).Microseconds())
+			if *debugFlag {
+				logger.Infof("Measured time stat on %s: %f", name, timeMonFsStat)
+			}
 
 			// statnx
 			start = time.Now()
 			_, _ = os.Stat(path.Join(testPath, testFolder, "non-existing.dat"))
 			timeMonFsStatNx = float64(time.Since(start).Microseconds())
+			if *debugFlag {
+				logger.Infof("Measured time statnx on %s: %f", name, timeMonFsStatNx)
+			}
 
 			// delete file
 			start = time.Now()
@@ -150,6 +180,9 @@ func monFsUpdate(mountpoint, name string) {
 				return
 			}
 			timeMonFsDelete = float64(time.Since(start).Microseconds())
+			if *debugFlag {
+				logger.Infof("Measured time delete on %s: %f", name, timeMonFsDelete)
+			}
 
 			// delete directory
 			start = time.Now()
@@ -157,6 +190,9 @@ func monFsUpdate(mountpoint, name string) {
 				return
 			}
 			timeMonFsRmdir = float64(time.Since(start).Microseconds())
+			if *debugFlag {
+				logger.Infof("Measured time rmdir on %s: %f", name, timeMonFsRmdir)
+			}
 
 		}()
 
@@ -184,7 +220,12 @@ func monFsUpdate(mountpoint, name string) {
 				zabbixSender.ConnectTimeout = conf.Zabbix.Servers[i].ConnectTimeout
 				zabbixSender.ReadTimeout = conf.Zabbix.Servers[i].ReadTimeout
 				zabbixSender.WriteTimeout = conf.Zabbix.Servers[i].WriteTimeout
-				if _, _, _, err := zabbixSender.SendMetrics(metrics); err != nil {
+				zabbixResponse, err, _, _ := zabbixSender.SendMetrics(metrics)
+				if *debugFlag {
+					logger.Infof("Zabbix response info: %s", zabbixResponse.Info)
+					logger.Infof("Zabbix response: %s", zabbixResponse.Response)
+				}
+				if err != nil {
 					logger.Errorf("Failed to send metrics to Zabbix server %s: %s", conf.Zabbix.Servers[i].Host, err)
 				}
 			}
