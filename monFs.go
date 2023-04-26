@@ -76,7 +76,7 @@ func monFsUpdate(mountpoint, name string) {
 			}
 			timeMonFsMkdir = float64(time.Since(start).Microseconds())
 			if *debugFlag {
-				logger.Infof("Measured time mkdir on %s: %f", name, timeMonFsMkdir)
+				logger.Infof("Measured time mkdir on %s: %.0fμs", name, timeMonFsMkdir)
 			}
 
 			// list
@@ -86,7 +86,7 @@ func monFsUpdate(mountpoint, name string) {
 			}
 			timeMonFsList = float64(time.Since(start).Microseconds())
 			if *debugFlag {
-				logger.Infof("Measured time list on %s: %f", name, timeMonFsList)
+				logger.Infof("Measured time list on %s: %.0fμs", name, timeMonFsList)
 			}
 
 			// create file
@@ -97,7 +97,7 @@ func monFsUpdate(mountpoint, name string) {
 			timeMonFsCreate = float64(time.Since(start).Microseconds())
 			fh.Close()
 			if *debugFlag {
-				logger.Infof("Measured time create on %s: %f", name, timeMonFsCreate)
+				logger.Infof("Measured time create on %s: %.0fμs", name, timeMonFsCreate)
 			}
 
 			// open file
@@ -107,7 +107,7 @@ func monFsUpdate(mountpoint, name string) {
 			}
 			timeMonFsOpen = float64(time.Since(start).Microseconds())
 			if *debugFlag {
-				logger.Infof("Measured time open on %s: %f", name, timeMonFsOpen)
+				logger.Infof("Measured time open on %s: %.0fμs", name, timeMonFsOpen)
 			}
 
 			// flock - TODO
@@ -120,7 +120,7 @@ func monFsUpdate(mountpoint, name string) {
 			}
 			timeMonFsWrite = float64(time.Since(start).Microseconds())
 			if *debugFlag {
-				logger.Infof("Measured time write on %s: %f", name, timeMonFsWrite)
+				logger.Infof("Measured time write on %s: %.0fμs", name, timeMonFsWrite)
 			}
 
 			// sync
@@ -131,7 +131,7 @@ func monFsUpdate(mountpoint, name string) {
 			}
 			timeMonFsSync = float64(time.Since(start).Microseconds())
 			if *debugFlag {
-				logger.Infof("Measured time sync on %s: %f", name, timeMonFsSync)
+				logger.Infof("Measured time sync on %s: %.0fμs", name, timeMonFsSync)
 			}
 
 			// read
@@ -142,7 +142,7 @@ func monFsUpdate(mountpoint, name string) {
 			}
 			timeMonFsRead = float64(time.Since(start).Microseconds())
 			if *debugFlag {
-				logger.Infof("Measured time read on %s: %f", name, timeMonFsRead)
+				logger.Infof("Measured time read on %s: %.0fμs", name, timeMonFsRead)
 			}
 
 			// close
@@ -153,7 +153,7 @@ func monFsUpdate(mountpoint, name string) {
 			}
 			timeMonFsClose = float64(time.Since(start).Microseconds())
 			if *debugFlag {
-				logger.Infof("Measured time close on %s: %f", name, timeMonFsClose)
+				logger.Infof("Measured time close on %s: %.0fμs", name, timeMonFsClose)
 			}
 
 			// stat
@@ -163,7 +163,7 @@ func monFsUpdate(mountpoint, name string) {
 			}
 			timeMonFsStat = float64(time.Since(start).Microseconds())
 			if *debugFlag {
-				logger.Infof("Measured time stat on %s: %f", name, timeMonFsStat)
+				logger.Infof("Measured time stat on %s: %.0fμs", name, timeMonFsStat)
 			}
 
 			// statnx
@@ -171,7 +171,7 @@ func monFsUpdate(mountpoint, name string) {
 			_, _ = os.Stat(path.Join(testPath, testFolder, "non-existing.dat"))
 			timeMonFsStatNx = float64(time.Since(start).Microseconds())
 			if *debugFlag {
-				logger.Infof("Measured time statnx on %s: %f", name, timeMonFsStatNx)
+				logger.Infof("Measured time statnx on %s: %.0fμs", name, timeMonFsStatNx)
 			}
 
 			// delete file
@@ -181,7 +181,7 @@ func monFsUpdate(mountpoint, name string) {
 			}
 			timeMonFsDelete = float64(time.Since(start).Microseconds())
 			if *debugFlag {
-				logger.Infof("Measured time delete on %s: %f", name, timeMonFsDelete)
+				logger.Infof("Measured time delete on %s: %.0fμs", name, timeMonFsDelete)
 			}
 
 			// delete directory
@@ -191,7 +191,7 @@ func monFsUpdate(mountpoint, name string) {
 			}
 			timeMonFsRmdir = float64(time.Since(start).Microseconds())
 			if *debugFlag {
-				logger.Infof("Measured time rmdir on %s: %f", name, timeMonFsRmdir)
+				logger.Infof("Measured time rmdir on %s: %.0fμs", name, timeMonFsRmdir)
 			}
 
 		}()
