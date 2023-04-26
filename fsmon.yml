@@ -13,4 +13,6 @@ zabbix:
   servers:
     - host: zabbix.example.com:10051 # Zabbix server address
       fallbackdir: /tmp/zabbix2
-      timeout: 15s
+      connectTimeout: 15s
+      readTimeout: 15s
+      writeTimeout: 15s

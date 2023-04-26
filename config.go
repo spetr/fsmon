@@ -13,21 +13,22 @@ type (
 		Filesystems []struct {
 			Mountpoint string `yaml:"mountpoint"`
 			Name       string `yaml:"name"`
-		}
+		} `yaml:"filesystems"`
 		Zabbix struct {
 			Hostname string `yaml:"hostname"`
 			Servers  []struct {
-				Host        string        `yaml:"host"`
-				FallbackDir int           `yaml:"port"`
-				Timeout     time.Duration `yaml:"timeout"`
+				Host           string        `yaml:"host"`
+				FallbackDir    int           `yaml:"port"`
+				ConnectTimeout time.Duration `yaml:"connectTimeout"`
+				ReadTimeout    time.Duration `yaml:"readTimeout"`
+				WriteTimeout   time.Duration `yaml:"writeTimeout"`
 			} `yaml:"servers"`
 		}
 	}
 )
 
 var (
-	configFile = "/etc/fsmon.yaml"
-	conf       tConf
+	conf tConf
 )
 
 func configLoad() (err error) {
@@ -35,7 +36,7 @@ func configLoad() (err error) {
 		file *os.File
 	)
 
-	if file, err = os.Open(configFile); err != nil {
+	if file, err = os.Open(*configFile); err != nil {
 		return
 	}
 	defer file.Close()

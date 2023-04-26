@@ -1,7 +1,10 @@
 package main
 
 import (
+	"os"
+
 	"github.com/kardianos/service"
+	"github.com/spetr/go-zabbix-sender"
 )
 
 var logger service.Logger
@@ -22,10 +25,28 @@ func (p *program) Start(s service.Service) error {
 }
 
 func (p *program) run() {
-	configLoad()
+	if err := configLoad(); err != nil {
+		logger.Error("Config load error: ", err)
+		os.Exit(1)
+	}
 
-	for _, fs := range conf.Filesystems {
-		go monFsUpdate(fs.Mountpoint, fs.Name)
+	// Register zabbix host
+	for i := range conf.Zabbix.Servers {
+		logger.Infof("Registering host %s on %s", conf.Zabbix.Hostname, conf.Zabbix.Servers[i].Host)
+		zabbixSender := zabbix.NewSender(conf.Zabbix.Servers[i].Host)
+		zabbixSender.ConnectTimeout = conf.Zabbix.Servers[i].ConnectTimeout
+		zabbixSender.ReadTimeout = conf.Zabbix.Servers[i].ReadTimeout
+		zabbixSender.WriteTimeout = conf.Zabbix.Servers[i].WriteTimeout
+		err := zabbixSender.RegisterHost(conf.Zabbix.Hostname, "")
+		if err != nil {
+			logger.Errorf("Failed to register host %s on %s: %s", conf.Zabbix.Hostname, conf.Zabbix.Servers[i].Host, err)
+		}
+	}
+
+	// Start Zabbix sender
+	for i := range conf.Filesystems {
+		logger.Infof("Starting monitoring of %s (%s)", conf.Filesystems[i].Name, conf.Filesystems[i].Mountpoint)
+		go monFsUpdate(conf.Filesystems[i].Mountpoint, conf.Filesystems[i].Name)
 	}
 
 	<-p.exit

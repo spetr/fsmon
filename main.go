@@ -3,13 +3,17 @@ package main
 import (
 	"flag"
 	"log"
-	"os"
 
 	"github.com/kardianos/service"
 )
 
+var (
+	configFile *string
+)
+
 func main() {
 	svcFlag := flag.String("service", "", "Control the system service.")
+	configFile = flag.String("config", "/etc/fsmon.yaml", "Config file path.")
 	flag.Parse()
 
 	options := make(service.KeyValue)
@@ -27,7 +31,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if len(os.Args) > 1 {
+	if svcFlag != nil && *svcFlag != "" {
 		err = service.Control(s, *svcFlag)
 		if err != nil {
 			log.Printf("Valid actions: %q\n", service.ControlAction)

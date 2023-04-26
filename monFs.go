@@ -179,7 +179,11 @@ func monFsUpdate(mountpoint, name string) {
 			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.%s.delete", name), fmt.Sprintf("%f", timeMonFsDelete), true, t))
 			metrics = append(metrics, zabbix.NewMetric(conf.Zabbix.Hostname, fmt.Sprintf("fsmon.%s.rmdir", name), fmt.Sprintf("%f", timeMonFsRmdir), true, t))
 			for i := range conf.Zabbix.Servers {
-				zabbix.NewSender(conf.Zabbix.Servers[i].Host).SendMetrics(metrics)
+				zabbixSender := zabbix.NewSender(conf.Zabbix.Servers[i].Host)
+				zabbixSender.ConnectTimeout = conf.Zabbix.Servers[i].ConnectTimeout
+				zabbixSender.ReadTimeout = conf.Zabbix.Servers[i].ReadTimeout
+				zabbixSender.WriteTimeout = conf.Zabbix.Servers[i].WriteTimeout
+				zabbixSender.SendMetrics(metrics)
 			}
 		}
 
