@@ -22,9 +22,3 @@ cd c:\fsmon
 fsmon.exe -service install
 fsmon.exe -service start
 ```
-
-## Enviroment variables
-
-FS - path to filesystem that should be monitored
-ZABBIX_SERVER - comma separated list of zabbix servers
-PROMETHEUS - listening address + port to start prometheus exporter

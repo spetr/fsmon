@@ -24,3 +24,4 @@ jobs:
         extra_files: |
           README.md
           LICENSE
+          fsmon.yml
